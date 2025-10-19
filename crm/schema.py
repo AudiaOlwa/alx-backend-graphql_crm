@@ -1,28 +1,41 @@
 import re
+from graphene import relay
 from django.db import transaction
 from django.utils import timezone
 import graphene
 from graphene_django import DjangoObjectType
 from .models import Customer, Product, Order
+from graphene_django.types import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
+#from .filters import CustomerFilterInput, ProductFilterInput, OrderFilterInput
+
+from crm.models import Customer
+from crm.filters import CustomerFilter
+
 
 # ==========================================================
 # Object Types
 # ==========================================================
 class CustomerType(DjangoObjectType):
+    createdAt = graphene.DateTime(source='created_at')
     class Meta:
         model = Customer
+#        interfaces = (graphene.relay.Node,)
+        interfaces = (relay.Node,)
         fields = ("id", "name", "email", "phone")
 
 
 class ProductType(DjangoObjectType):
     class Meta:
         model = Product
+        interfaces = (relay.Node,)
         fields = ("id", "name", "price", "stock")
 
 
 class OrderType(DjangoObjectType):
     class Meta:
         model = Order
+        interfaces = (relay.Node,)
         fields = ("id", "customer", "products", "total_amount", "order_date")
 
 
@@ -190,16 +203,72 @@ class Mutation(graphene.ObjectType):
 # ==========================================================
 # Root Query (can be simple)
 # ==========================================================
+# --- QUERY ---
 class Query(graphene.ObjectType):
-    customers = graphene.List(CustomerType)
-    products = graphene.List(ProductType)
-    orders = graphene.List(OrderType)
+    all_customers = graphene.List(
+        CustomerType,
+        filter=CustomerFilterInput(),
+        order_by=graphene.String()
+    )
+    all_products = graphene.List(
+        ProductType,
+        filter=ProductFilterInput(),
+        order_by=graphene.String()
+    )
+    all_orders = graphene.List(
+        OrderType,
+        filter=OrderFilterInput(),
+        order_by=graphene.String()
+    )
 
-    def resolve_customers(root, info):
-        return Customer.objects.all()
+    # --- resolvers ---
+    def resolve_all_customers(self, info, filter=None, order_by=None):
+        qs = Customer.objects.all()
+        if filter:
+            if filter.get("nameIcontains"):
+                qs = qs.filter(name__icontains=filter["nameIcontains"])
+            if filter.get("emailIcontains"):
+                qs = qs.filter(email__icontains=filter["emailIcontains"])
+            if filter.get("createdAtGte"):
+                qs = qs.filter(created_at__gte=filter["createdAtGte"])
+            if filter.get("createdAtLte"):
+                qs = qs.filter(created_at__lte=filter["createdAtLte"])
+        if order_by:
+            qs = qs.order_by(order_by)
+        return qs
 
-    def resolve_products(root, info):
-        return Product.objects.all()
+    def resolve_all_products(self, info, filter=None, order_by=None):
+        qs = Product.objects.all()
+        if filter:
+            if filter.get("nameIcontains"):
+                qs = qs.filter(name__icontains=filter["nameIcontains"])
+            if filter.get("priceGte"):
+                qs = qs.filter(price__gte=filter["priceGte"])
+            if filter.get("priceLte"):
+                qs = qs.filter(price__lte=filter["priceLte"])
+            if filter.get("stockGte"):
+                qs = qs.filter(stock__gte=filter["stockGte"])
+            if filter.get("stockLte"):
+                qs = qs.filter(stock__lte=filter["stockLte"])
+        if order_by:
+            qs = qs.order_by(order_by)
+        return qs
 
-    def resolve_orders(root, info):
-        return Order.objects.all()
+    def resolve_all_orders(self, info, filter=None, order_by=None):
+        qs = Order.objects.all()
+        if filter:
+            if filter.get("totalAmountGte"):
+                qs = qs.filter(total_amount__gte=filter["totalAmountGte"])
+            if filter.get("totalAmountLte"):
+                qs = qs.filter(total_amount__lte=filter["totalAmountLte"])
+            if filter.get("orderDateGte"):
+                qs = qs.filter(order_date__gte=filter["orderDateGte"])
+            if filter.get("orderDateLte"):
+                qs = qs.filter(order_date__lte=filter["orderDateLte"])
+            if filter.get("customerName"):
+                qs = qs.filter(customer__name__icontains=filter["customerName"])
+            if filter.get("productName"):
+                qs = qs.filter(products__name__icontains=filter["productName"])
+        if order_by:
+            qs = qs.order_by(order_by)
+        return qs
