@@ -83,6 +83,7 @@ class CreateCustomer(graphene.Mutation):
                 email=input.email,
                 phone=input.phone
             )
+            customer.save()
             return CreateCustomer(customer=customer, message="Customer created successfully.")
         except ValueError as e:
             return CreateCustomer(customer=None, message=str(e))
