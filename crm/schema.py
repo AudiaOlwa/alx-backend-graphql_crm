@@ -9,8 +9,8 @@ from graphene_django.types import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 #from .filters import CustomerFilterInput, ProductFilterInput, OrderFilterInput
 
-from crm.models import Customer
-from crm.filters import CustomerFilter
+from crm.models import Customer, Product, Order
+from crm.filters import CustomerFilter, ProductFilter, OrderFilter
 
 
 # ==========================================================
@@ -205,19 +205,19 @@ class Mutation(graphene.ObjectType):
 # ==========================================================
 # --- QUERY ---
 class Query(graphene.ObjectType):
-    all_customers = graphene.List(
+    all_customers = DjangoFilterConnectionField(
         CustomerType,
-        filter=CustomerFilterInput(),
+        filterset_class=CustomerFilter,
         order_by=graphene.String()
     )
-    all_products = graphene.List(
+    all_products = DjangoFilterConnectionField(
         ProductType,
-        filter=ProductFilterInput(),
+        filterset_class=ProductFilter,
         order_by=graphene.String()
     )
-    all_orders = graphene.List(
+    all_orders = DjangoFilterConnectionField(
         OrderType,
-        filter=OrderFilterInput(),
+        filterset_class=OrderFilter,
         order_by=graphene.String()
     )
 

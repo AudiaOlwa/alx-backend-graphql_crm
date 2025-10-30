@@ -87,6 +87,7 @@ DATABASES = {
     }
 }
 
+#os.environ.setdefault("DJANGO_SETTINGS_MODULE",  "alx_backend_graphql.settings.py")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
