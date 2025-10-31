@@ -8,8 +8,8 @@ from .models import Customer, Product, Order
 from graphene_django.types import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 #from .filters import CustomerFilterInput, ProductFilterInput, OrderFilterInput
-from crm.models import Product
-from crm.models import Customer, Product, Order
+from crm.models import Product, Customer, Order
+#from crm.models import Customer, Product, Order
 from crm.filters import CustomerFilter, ProductFilter, OrderFilter
 
 
