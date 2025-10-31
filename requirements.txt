@@ -1,3 +1,4 @@
 gql
 requests
 requests_toolbelt
+django-crontab
