@@ -1,6 +1,6 @@
 import datetime
 import requests
-
+from gql.transport.requests import RequestsHTTPTransport", "from gql import", "gql", "Client
 def log_crm_heartbeat():
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
     log_message = f"{timestamp} CRM is alive\n"
