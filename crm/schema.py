@@ -9,7 +9,6 @@ from graphene_django.types import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 #from .filters import CustomerFilterInput, ProductFilterInput, OrderFilterInput
 from crm.models import Product, Customer, Order
-#from crm.models import Customer, Product, Order
 from crm.filters import CustomerFilter, ProductFilter, OrderFilter
 
 
@@ -221,6 +220,21 @@ class Query(graphene.ObjectType):
         order_by=graphene.String()
     )
 
+
+    customers_count = graphene.Int()
+    orders_count = graphene.Int()
+    total_revenue = graphene.Float()
+
+    def resolve_customers_count(self, info):
+        return Customer.objects.count()
+
+    def resolve_orders_count(self, info):
+        return Order.objects.count()
+
+    def resolve_total_revenue(self, info):
+        return Order.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+        
     # --- resolvers ---
     def resolve_all_customers(self, info, filter=None, order_by=None):
         qs = Customer.objects.all()
